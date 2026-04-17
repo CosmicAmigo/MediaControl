@@ -1,4 +1,4 @@
-name: Build and Release App
+name: Build and Release
 
 on:
   push:
@@ -13,30 +13,21 @@ jobs:
       contents: write
 
     steps:
-    - name: Checkout Code
+    - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
-    - name: Install Dependencies
+    - name: Install
       run: |
-        python -m pip install --upgrade pip
         pip install customtkinter Pillow pyinstaller winshell pywin32 winsdk
 
-    - name: Build with PyInstaller
+    - name: Build
       run: |
-        # Bundling all icons and the app into one EXE
         pyinstaller --noconsole --onefile `
-        --icon="icon.ico" `
-        --add-data "prev.png;." `
-        --add-data "play.png;." `
-        --add-data "next.png;." `
-        --add-data "shuffle.png;." `
-        --add-data "repeat.png;." `
-        --add-data "icon.ico;." `
         --collect-submodules winsdk `
         --collect-all winsdk `
         --hidden-import winsdk.windows.media.control `
@@ -45,21 +36,14 @@ jobs:
     - name: Upload Executable
       uses: actions/upload-artifact@v4
       with:
-        name: MediaControl-1.0
+        name: MediaControl-v1.0
         path: dist/MediaControl.exe
-        
-    - name: Create GitHub Release
+      
+    - name: Release
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         files: dist/MediaControl.exe
         name: Media Control ${{ github.ref_name }}
-        body: |
-          ### Changes in this version
-          - Added Vertical Volume Control
-          - New Semicircle Hover Trigger
-          - Shuffle/Repeat Toggle Support
-        draft: false
-        prerelease: false
+        body: "Elongated UI with Vertical Volume & Semicircle Trigger."
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
