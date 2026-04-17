@@ -1,4 +1,4 @@
-name: Build Media Controller EXE
+name: Build Media Control EXE
 
 on:
   push:
@@ -25,10 +25,22 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        # This tells PyInstaller: "Search the winsdk package and include the winrt subfolder"
-        pyinstaller --noconsole --onefile --collect-submodules winsdk --collect-all winsdk --hidden-import winsdk.windows.media.control --name "MediaControl" main.py
+        # We bundle all icons and the .ico file into the single EXE
+        pyinstaller --noconsole --onefile `
+        --icon="icon.ico" `
+        --add-data "prev.png;." `
+        --add-data "play.png;." `
+        --add-data "next.png;." `
+        --add-data "shuffle.png;." `
+        --add-data "repeat.png;." `
+        --add-data "icon.ico;." `
+        --collect-submodules winsdk `
+        --collect-all winsdk `
+        --hidden-import winsdk.windows.media.control `
+        --name "MediaControl" main.py
+
     - name: Upload Executable
       uses: actions/upload-artifact@v4
       with:
-        name: MediaControl-Package
+        name: MediaControl-EXE
         path: dist/MediaControl.exe
