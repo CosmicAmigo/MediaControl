@@ -1,0 +1,35 @@
+name: Build Media Controller EXE
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install customtkinter winrt-python Pillow pyinstaller winshell pywin32
+
+    - name: Build with PyInstaller
+      run: |
+        # Pointing to main.py as requested
+        pyinstaller --noconsole --onefile --collect-all winrt --name "MediaControl" main.py
+
+    - name: Upload Executable
+      uses: actions/upload-artifact@v4
+      with:
+        name: MediaControl-Package
+        path: dist/MediaControl.exe
