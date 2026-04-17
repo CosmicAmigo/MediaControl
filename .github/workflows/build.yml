@@ -25,8 +25,8 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        # Pointing to main.py as requested
-        pyinstaller --noconsole --onefile --collect-all winrt --name "MediaControl" main.py
+        # This tells PyInstaller: "Search the winsdk package and include the winrt subfolder"
+        pyinstaller --noconsole --onefile --collect-submodules winrt --collect-all winsdk --name "MediaControl" main.py
 
     - name: Upload Executable
       uses: actions/upload-artifact@v4
