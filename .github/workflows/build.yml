@@ -39,11 +39,27 @@ jobs:
         name: MediaControl-v1.0
         path: dist/MediaControl.exe
       
-    - name: Release
+    - name: Generate Tag Name
+      id: tagger
+      shell: bash
+      run: |
+        # Creates a tag based on date/time: vYYYY.MM.DD-HHMM
+        TAG_NAME="v$(date +'%Y.%m.%d-%H%M')"
+        echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+
+    - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
+        tag_name: ${{ steps.tagger.outputs.tag }}
         files: dist/MediaControl.exe
-        name: Media Control ${{ github.ref_name }}
-        body: "Elongated UI with Vertical Volume & Semicircle Trigger."
+        name: Media Control ${{ steps.tagger.outputs.tag }}
+        body: |
+          ### Latest Build
+          - Fixed Source Name (Now shows VLC.EXE, etc.)
+          - Moved Shuffle/Repeat to side of media buttons
+          - Removed Volume slider (unstable)
+          - Restored Cube trigger and fixed taskbar persistence
+        draft: false
+        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
