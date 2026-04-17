@@ -52,7 +52,7 @@ class MediaControlApp(ctk.CTk):
         self.vol_frame.pack(side="right", fill="y", padx=(0, 10), pady=10)
 
         self.vol_slider = ctk.CTkSlider(self.vol_frame, from_=0, to=100, orientation="vertical", width=16, 
-                                        button_color="1DB954", progress_color="#1DB954", command=self.set_volume)
+                                        button_color="#1DB954", progress_color="#1DB954", command=self.set_volume)
         self.vol_slider.pack(expand=True, pady=10)
 
         self.trigger = ctk.CTkToplevel()
