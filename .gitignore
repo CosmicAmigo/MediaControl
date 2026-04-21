@@ -1,0 +1,22 @@
+## Visual Studio Junk
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## .NET Core / .NET 5+ Junk
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## OS specific files
+Thumbs.db
+desktop.ini
+
+## PyInstaller leftovers (if you're keeping them in the same repo)
+dist/
+build/
+*.spec
