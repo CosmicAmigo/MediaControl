@@ -1,9 +1,8 @@
-name: Build and Release
+name: Build and Release C# v2-dev
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [ "v2-dev" ] # Specifically watching your dev branch
   workflow_dispatch:
 
 jobs:
@@ -13,53 +12,39 @@ jobs:
       contents: write
 
     steps:
-    - name: Checkout
+    - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
       with:
-        python-version: '3.10'
+        dotnet-version: '8.0.x'
 
-    - name: Install
+    - name: Restore Dependencies
+      # We tell dotnet to look for the .csproj specifically
+      run: dotnet restore ./MediaControlApp/MediaControlApp.csproj
+
+    - name: Build and Publish
       run: |
-        pip install customtkinter Pillow pyinstaller winshell pywin32 winsdk
+        dotnet publish ./MediaControlApp/MediaControlApp.csproj -c Release -r win-x64 --self-contained true `
+        /p:PublishSingleFile=true /p:PublishReadyToRun=true /p:IncludeNativeLibrariesForSelfExtract=true `
+        -o ./publish
 
-    - name: Build
-      run: |
-        pyinstaller --noconsole --onefile `
-        --collect-submodules winsdk `
-        --collect-all winsdk `
-        --hidden-import winsdk.windows.media.control `
-        --name "MediaControl" main.py
-
-    - name: Upload Executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: MediaControl-v1.0
-        path: dist/MediaControl.exe
-      
-    - name: Generate Tag Name
+    - name: Generate Tag
       id: tagger
       shell: bash
-      run: |
-        # Creates a tag based on date/time: vYYYY.MM.DD-HHMM
-        TAG_NAME="v$(date +'%Y.%m.%d-%H%M')"
-        echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+      run: echo "tag=v2-$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_OUTPUT
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.tagger.outputs.tag }}
-        files: dist/MediaControl.exe
-        name: Media Control ${{ steps.tagger.outputs.tag }}
+        files: ./publish/MediaControlApp.exe
+        name: Media Control v2-Dev ${{ steps.tagger.outputs.tag }}
         body: |
-          ### Latest Build
-          - Fixed Source Name (Now shows VLC.EXE, etc.)
-          - Moved Shuffle/Repeat to side of media buttons
-          - Removed Volume slider (unstable)
-          - Restored Cube trigger and fixed taskbar persistence
-        draft: false
-        prerelease: false
+          ### Dev Build (Branch: v2-dev)
+          - Added Album Cover & App Icon Overlay.
+          - Fixed Taskbar Hover Preview.
+          - Single-file native C# build.
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
